@@ -15,4 +15,6 @@ namespace ThreadCalc.Types
         decimal Tolerance
         )
     {
-}
+
+        public static Specification Empty { get; } = new Specification();
+    }
