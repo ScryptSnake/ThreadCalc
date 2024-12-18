@@ -12,12 +12,18 @@ namespace ThreadCalc.Core;
 // Provides methods for generating a UnifiedThread object from calculations.
 public static class UnifiedThreadFactory
 {
-    public static UnifiedThread Create(decimal basicSize, decimal basicPitch, ThreadOrientations orientation,
-                                        UnifiedClassOfFits classOfFit, decimal lengthOfEngagement = 0.0m)
+    public static UnifiedThread CreateInternal(decimal basicSize, decimal basicPitch,
+                                                UnifiedClassOfFits classOfFit, decimal lengthOfEngagement = 0.0m)
     {
-        // Perform calculations needed
-        var allowance = UnifiedThreadCalculator.Allowance(basicSize, basicPitch, classOfFit, lengthOfEngagement);
+        // Establish thread orientation for this method.
+        const ThreadOrientations orient = ThreadOrientations.Internal;
 
+        // Perform calculations needed.
+        var allowance = 0; // Not a feature of Internal threads.
+        var majorNominal = UnifiedThreadCalculator.MajorDiameterNominal(basicSize, basicPitch, orient, classOfFit, lengthOfEngagement);
+        var majorTolerance = UnifiedThreadCalculator.MajorDiameterTolerance(basicSize,basicPitch,orient,classOfFit, lengthOfEngagement);
+
+        // Build the thread.
         var utsThread = new UnifiedThread
         {
             BasicSize = basicSize,
@@ -25,7 +31,8 @@ public static class UnifiedThreadFactory
             Orientation = orientation,
             ClassOfFit = classOfFit,
             LengthOfEngagement = lengthOfEngagement,
-            Allowance = new SimpleSpecification("Allowance",UnifiedThreadNotations.Find("Allowance",orientation),allowance)
+            Allowance = new SimpleSpecification("Allowance", UnifiedThreadInternalNotations.ALLOWANCE, allowance),
+            m
 
 
 
@@ -33,6 +40,7 @@ public static class UnifiedThreadFactory
 
 
         };
+
 
         
         
