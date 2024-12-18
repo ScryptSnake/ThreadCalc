@@ -15,12 +15,8 @@ public static class UnifiedThreadFactory
     public static UnifiedThread Create(decimal basicSize, decimal basicPitch, ThreadOrientations orientation,
                                         UnifiedClassOfFits classOfFit, decimal lengthOfEngagement = 0.0m)
     {
-
         // Perform calculations needed
         var allowance = UnifiedThreadCalculator.Allowance(basicSize, basicPitch, classOfFit, lengthOfEngagement);
-
-
-
 
         var utsThread = new UnifiedThread
         {
@@ -29,7 +25,8 @@ public static class UnifiedThreadFactory
             Orientation = orientation,
             ClassOfFit = classOfFit,
             LengthOfEngagement = lengthOfEngagement,
-            Allowance = new SimpleSpecification("Allowance",)
+            Allowance = new SimpleSpecification("Allowance",UnifiedThreadNotations.Find("Allowance",orientation),allowance)
+
 
 
 
