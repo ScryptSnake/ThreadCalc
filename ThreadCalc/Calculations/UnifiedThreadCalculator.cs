@@ -4,6 +4,9 @@ namespace ThreadCalc.Calculations;
 
 using System;
 
+/// <summary>
+/// Provides methods for computing various specifications about a Unified Thread.
+/// </summary>
 public static class UnifiedThreadCalculator
 {
 
@@ -45,8 +48,6 @@ public static class UnifiedThreadCalculator
         return false;
     }
 
-
-
     public static decimal MajorDiameterNominal(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                                UnifiedClassOfFits classOfFit, decimal lengthOfEngagement = 0.0m)
     {
@@ -64,7 +65,6 @@ public static class UnifiedThreadCalculator
         return result;
     }
 
-
     public static decimal FundamentalHeight(decimal pitch)
     {
         if (ValidatePitch(pitch) == false) 
@@ -78,7 +78,6 @@ public static class UnifiedThreadCalculator
             throw new ArgumentException("Invalid pitch provided.");
         return 0.54126588m * pitch;
     }
-
     public static decimal WidthAtPitchLine(decimal pitch)
     {
         if (ValidatePitch(pitch) == false)
@@ -147,7 +146,7 @@ public static class UnifiedThreadCalculator
             UnifiedClassOfFits._2A => pitchDiaTol2A,
             UnifiedClassOfFits._1A => 1.5m * pitchDiaTol2A,
             UnifiedClassOfFits._3A => 0.75m * pitchDiaTol2A,
-
+            // Internal
             UnifiedClassOfFits._1B => 1.95m * pitchDiaTol2A,
             UnifiedClassOfFits._2B => 1.3m * pitchDiaTol2A,
             UnifiedClassOfFits._3B => 0.975m * pitchDiaTol2A,
@@ -190,9 +189,7 @@ public static class UnifiedThreadCalculator
         var pitchTolerance = PitchDiameterTolerance(basicSize, pitch, ThreadOrientations.External, classOfFit, lengthOfEngagement);
 
         if (classOfFit == UnifiedClassOfFits._1A || classOfFit == UnifiedClassOfFits._2A)
-        {
             return 0.3m * pitchTolerance;
-        }
         // Allowance is only computed for external threads.
         throw new Exception("Allowance for internal thread invalid. ClassOfFit must be external.");
     }

@@ -16,7 +16,7 @@ public record UnifiedThread : IThread
 
     public required decimal ThreadsPerInch { get; init; }
     public required UnifiedClassOfFits ClassOfFit { get; init; }
-    public required Specification Allowance { get; init; }
+    public required SimpleSpecification Allowance { get; init; }
     public required Specification MajorDiameter { get; init; }
     public required Specification MinorDiameter { get; init; }
     public required Specification PitchDiameter { get; init; }
@@ -25,5 +25,6 @@ public record UnifiedThread : IThread
     public required Specification MeasurementOverWires { get; init; }
     public required Specification Pitch { get; init; }
     public required bool isUnr { get; init; }
+    public required SimpleSpecification LengthOfEngagement { get; init; }    
 
 }
