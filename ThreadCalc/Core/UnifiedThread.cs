@@ -6,17 +6,23 @@ namespace ThreadCalc.Core;
 /// <summary>
 /// Defines a UTS thread.
 /// </summary>
-public record UnifiedThread(
-    decimal ThreadsPerInch,
-    UnifiedClassOfFits ClassOfFit,
-    Specification Allowance,
-    Specification MajorDiameter,
-    Specification MinorDiameter,
-    Specification PitchDiameter,
-    Specification RootWidth,
-    Specification CrestWidth,
-    Specification MeasurementOverWires,
-    Specification Pitch
-) : ThreadBase(ThreadStandards.UTS,)
+public record UnifiedThread : IThread
+{
+    public ThreadStandards Standard { get; } = ThreadStandards.UTS;
+    public required decimal BasicSize { get; init; }
+    public required decimal BasicPitch {get;init; }
+    public required ThreadOrientations Orientation { get; init; }
+    public required bool IsCustom { get; init; }
+
+    public required decimal ThreadsPerInch { get; init; }
+    public required UnifiedClassOfFits ClassOfFit { get; init; }
+    public required Specification Allowance { get; init; }
+    public required Specification MajorDiameter { get; init; }
+    public required Specification MinorDiameter { get; init; }
+    public required Specification PitchDiameter { get; init; }
+    public required Specification RootWidth { get; init; }
+    public required Specification CrestWidth { get; init; }
+    public required Specification MeasurementOverWires { get; init; }
+    public required Specification Pitch { get; init; }
 
 }
