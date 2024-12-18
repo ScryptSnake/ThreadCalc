@@ -24,5 +24,6 @@ public record UnifiedThread : IThread
     public required Specification CrestWidth { get; init; }
     public required Specification MeasurementOverWires { get; init; }
     public required Specification Pitch { get; init; }
+    public required bool isUnr { get; init; }
 
 }

@@ -7,6 +7,10 @@ using ThreadCalc.Types;
 
 namespace ThreadCalc.Core
 {
+
+    /// <summary>
+    /// Describes properties for which all threads should implement.
+    /// </summary>
     internal interface IThread
     {
         ThreadStandards Standard { get; }
