@@ -6,7 +6,7 @@ namespace ThreadCalc.Core;
 /// <summary>
 /// A base class from which all threads inherit.
 /// </summary>
-public record ThreadBase(
+public abstract record ThreadBase(
     ThreadStandards Standard,
     decimal BasicSize,
     decimal BasicPitch,

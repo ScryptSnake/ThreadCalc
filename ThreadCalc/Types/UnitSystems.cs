@@ -8,6 +8,6 @@ namespace ThreadCalc.Types;
 
 public enum UnitSystems
 {
-    metric,
-    imperial
+    Metric,
+    Imperial
 }

@@ -8,6 +8,6 @@ namespace ThreadCalc.Types;
 
 public enum ThreadOrientations
 {
-    @internal,
-    @external
+    @Internal,
+    @External
 }
