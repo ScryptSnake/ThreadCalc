@@ -361,3 +361,16 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/ThreadCalc/Documentation/analysis.xlsx
+/ThreadCalc/Documentation/ASME B1-1 (2019).pdf
+/ThreadCalc/Documentation/asme_b1_12003_unified_inch_screw_threads_un_and_unr_thread_f.pdf
+/ThreadCalc/Documentation/calculater fillet.xlsx
+/ThreadCalc/Documentation/external_thread_specs_db.xlsx
+/ThreadCalc/Documentation/Fillet Radius Calc.xlsx
+/ThreadCalc/Documentation/internal_thread_spec_db.xlsx
+/ThreadCalc/Documentation/ISO-724-2023.pdf
+/ThreadCalc/Documentation/Screen Shot 2022-08-31 at 9.35.16 PM.png
+/ThreadCalc/Documentation/THDPROG .xls
+/ThreadCalc/Documentation/threadcalc.xlsm
+/ThreadCalc/Documentation/Thread-Calculations.pdf
+/ThreadCalc/Documentation/ThreadSolver.accdb
