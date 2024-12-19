@@ -65,6 +65,9 @@ public static class UnifiedThreadCalculator
         return result;
     }
 
+    /// <summary>
+    /// The fundamental height is the height of the thread with an infinitely sharp crest and root.
+    /// </summary>
     public static decimal FundamentalHeight(decimal pitch)
     {
         if (ValidatePitch(pitch) == false) 
@@ -72,6 +75,9 @@ public static class UnifiedThreadCalculator
         return 0.8660254m * pitch;
     }
 
+    /// <summary>
+    /// Computes the height (Basic height) of the thread with a flat root and crest.
+    /// </summary>
     public static decimal Height(decimal pitch)
     {
         if (ValidatePitch(pitch) == false)
@@ -85,26 +91,105 @@ public static class UnifiedThreadCalculator
         return 0.5m * pitch;
     }
 
+    
+    public static decimal BasicMinorDiameter(decimal basicSize, decimal pitch)
+
+    {
+        if (ValidatePitch(pitch) == false)
+            throw new ArgumentException("Invalid pitch provided.");
+        if (ValidateBasicSize(basicSize) == false)
+            throw new ArgumentException("Invalid size provided.");
+
+        return basicSize - (2*Height(pitch));
+    }
+
+    public static decimal BasicPitchDiameter(decimal basicSize, decimal Pitch)
+    {
+        if (ValidatePitch(pitch) == false)
+            throw new ArgumentException("Invalid pitch provided.");
+        if (ValidateBasicSize(basicSize) == false)
+            throw new ArgumentException("Invalid size provided.");
+        return basicSize - (2* 0.32475953m * Pitch);
+    }
+
+
+    /// <summary>
+    /// Computes the minimum minor diameter of a thread. References ASME B1.1 ch 8.3.1 + ch 8.3.2 - section e.
+    /// Does not support UNJ threads. 
+    /// </summary>
+    public static decimal MinorDiameterMinimum(decimal basicSize, decimal pitch, ThreadOrientations orientation,
+                                        UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
+    {
+        Validate(basicSize, pitch, orientation, classOfFit);
+
+        if (orientation == ThreadOrientations.External)
+        {
+            var minimumPitchDia = PitchDiameterMinimum(basicSize, pitch, orientation,classOfFit,lengthOfEngagement);
+            return minimumPitchDia - (0.64951905m * pitch);
+        }
+        else
+        {
+            return basicSize - (1.08253175m * pitch);
+        }
+    }
+
+
+
+
+
+
+    /// <summary>
+    /// Computes the maximum minor diameter of a thread. References ASME B1.1 ch 8.3.1 + ch 8.3.2 - section e.
+    /// Does not support UNJ threads. 
+    /// </summary>
+    public static decimal MinorDiameterMaximum(decimal basicSize, decimal pitch, ThreadOrientations orientation,
+                                        UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
+    {
+        Validate(basicSize, pitch, orientation, classOfFit);
+        decimal result;
+
+        if(orientation == ThreadOrientations.External)
+        {
+            if (classOfFit == UnifiedClassOfFits._3A)
+                result = BasicMinorDiameter(basicSize, pitch);
+            else
+                result = BasicMinorDiameter(basicSize, pitch) - Allowance(basicSize, pitch, classOfFit, 0);
+        }
+        else
+        {
+            // Internal.
+            result = basicSize - 
+
+
+
+        }
+
+
+
+
+
+    }
+
     public static decimal MinorDiameterTolerance(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                                  UnifiedClassOfFits classOfFit, decimal lengthOfEngagement = 0.0m,
-                                                 bool isUNR = false)
+                                                 bool isUnr = false)
     {
         Validate(basicSize, pitch, orientation, classOfFit);
 
         if (orientation == ThreadOrientations.External)
         {
             var pitchDiameterTolerance = PitchDiameterTolerance(basicSize, pitch, orientation, classOfFit, lengthOfEngagement);
-
-            if (!isUNR)
+            decimal multipler;
+            if (!isUnr)
             {
-                const decimal multiplier = 0.21650635m;
-                var result = pitchDiameterTolerance + (multiplier * pitch);
+                const decimal MULTIPLIER = 0.21650635m;
+                var result = pitchDiameterTolerance + (MULTIPLIER * pitch);
                 return result;
             }
             else
             {
-                const decimal multiplier2 = 0.10825318m;
-                var result = pitchDiameterTolerance + (multiplier2 * pitch);
+                const decimal UNR_MULTIPLIER = 0.10825318m;
+                var result = pitchDiameterTolerance + (UNR_MULTIPLIER * pitch);
                 return result;
             }
         }
@@ -120,14 +205,58 @@ public static class UnifiedThreadCalculator
         }
     }
 
+
+    public static decimal PitchDiameterMinimum(decimal basicSize, decimal pitch, ThreadOrientations orientation,
+                                         UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
+    {
+        Validate(basicSize, pitch, orientation, classOfFit);
+        if (orientation == ThreadOrientations.External)
+        {
+            var maximumPitchDia = PitchDiameterMaximum(basicSize, pitch, orientation, classOfFit,lengthOfEngagement);
+            var pitchDiameterTol = PitchDiameterTolerance(basicSize,pitch,orientation,classOfFit,lengthOfEngagement);
+            return maximumPitchDia - pitchDiameterTol;
+        }
+        else
+        {
+            return BasicPitchDiameter(basicSize, pitch);
+        }
+
+
+    }
+
+
+    public static decimal PitchDiameterMaximum(decimal basicSize, decimal pitch, ThreadOrientations orientation,
+                                             UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
+    {
+        Validate(basicSize, pitch, orientation, classOfFit);
+        if(orientation == ThreadOrientations.External)
+        {
+            if (classOfFit == UnifiedClassOfFits._3A)
+                // Equals basic PD of internal thread (D2bsc) according to std. basic PD is irrespective of orientation anyway?) 
+                return BasicPitchDiameter(basicSize, pitch);
+            else
+                // 2A or 1A
+                return BasicPitchDiameter(basicSize, pitch) - Allowance(basicSize,pitch,classOfFit, lengthOfEngagement);
+        }
+        else
+        {
+            var minimumPitchDia = PitchDiameterMinimum(basicSize, pitch,orientation,classOfFit,lengthOfEngagement);
+            var pitchDiameterTol = PitchDiameterTolerance(basicSize, pitch, orientation, classOfFit, lengthOfEngagement);
+            return minimumPitchDia + pitchDiameterTol;
+        }
+    }
+
+
+
+
     public static decimal PitchDiameterTolerance(decimal basicSize, decimal pitch, ThreadOrientations orientation,
-                                                 UnifiedClassOfFits classOfFit, decimal lengthOfEngagement = 0.0m)
+                                                 UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
     {
         Validate(basicSize, pitch, orientation, classOfFit);
 
         var le = lengthOfEngagement;
 
-        if (lengthOfEngagement == 0)
+        if (lengthOfEngagement == null)
         {
             if (pitch <= 0.08333m)
                 le = 9 * pitch;
@@ -157,7 +286,7 @@ public static class UnifiedThreadCalculator
     }
 
     public static decimal MajorDiameterTolerance(decimal basicSize, decimal pitch, ThreadOrientations orientation,
-                                                 UnifiedClassOfFits classOfFit, decimal lengthOfEngagement = 0.0m)
+                                                 UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
     {
         Validate(basicSize, pitch, orientation, classOfFit);
         decimal result;
@@ -179,7 +308,7 @@ public static class UnifiedThreadCalculator
     }
 
     public static decimal Allowance(decimal basicSize, decimal pitch, UnifiedClassOfFits classOfFit,
-                                    decimal lengthOfEngagement = 0.0m)
+                                    decimal? lengthOfEngagement)
     {
         if (!(ValidateBasicSize(basicSize) || ValidatePitch(pitch)))
             throw new ArgumentException("Invalid sizes provided for calculation.");

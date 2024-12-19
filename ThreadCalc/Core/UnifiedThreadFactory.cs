@@ -22,6 +22,7 @@ public static class UnifiedThreadFactory
         var allowance = 0; // Not a feature of Internal threads.
         var majorNominal = UnifiedThreadCalculator.MajorDiameterNominal(basicSize, basicPitch, orient, classOfFit, lengthOfEngagement);
         var majorTolerance = UnifiedThreadCalculator.MajorDiameterTolerance(basicSize,basicPitch,orient,classOfFit, lengthOfEngagement);
+        
 
         // Build the thread.
         var utsThread = new UnifiedThread
