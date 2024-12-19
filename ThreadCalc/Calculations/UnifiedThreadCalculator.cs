@@ -103,13 +103,13 @@ public static class UnifiedThreadCalculator
         return basicSize - (2*Height(pitch));
     }
 
-    public static decimal BasicPitchDiameter(decimal basicSize, decimal Pitch)
+    public static decimal BasicPitchDiameter(decimal basicSize, decimal pitch)
     {
         if (ValidatePitch(pitch) == false)
             throw new ArgumentException("Invalid pitch provided.");
         if (ValidateBasicSize(basicSize) == false)
             throw new ArgumentException("Invalid size provided.");
-        return basicSize - (2* 0.32475953m * Pitch);
+        return basicSize - (2* 0.32475953m * pitch);
     }
 
 
@@ -140,38 +140,35 @@ public static class UnifiedThreadCalculator
 
     /// <summary>
     /// Computes the maximum minor diameter of a thread. References ASME B1.1 ch 8.3.1 + ch 8.3.2 - section e.
-    /// Does not support UNJ threads. 
+    /// Does not support UNJ threads.
+    /// Note: this method does not adhere to ASME B1.1 Ch 8.3.2 section f-1
     /// </summary>
     public static decimal MinorDiameterMaximum(decimal basicSize, decimal pitch, ThreadOrientations orientation,
-                                        UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
+                                        UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement, bool isUnr)
     {
         Validate(basicSize, pitch, orientation, classOfFit);
         decimal result;
-
         if(orientation == ThreadOrientations.External)
         {
             if (classOfFit == UnifiedClassOfFits._3A)
-                result = BasicMinorDiameter(basicSize, pitch);
+                return BasicMinorDiameter(basicSize, pitch);
             else
                 result = BasicMinorDiameter(basicSize, pitch) - Allowance(basicSize, pitch, classOfFit, 0);
+                return result;
         }
         else
         {
             // Internal.
-            result = basicSize - 
-
-
-
+            var minimumMinorDia = MinorDiameterMinimum(basicSize,pitch,orientation, classOfFit, lengthOfEngagement);
+            var minorDiameterTol = MinorDiameterTolerance(basicSize, pitch, orientation, classOfFit, lengthOfEngagement, isUnr);
+            result = minimumMinorDia + minorDiameterTol;
+            return result;
         }
-
-
-
-
-
     }
 
+
     public static decimal MinorDiameterTolerance(decimal basicSize, decimal pitch, ThreadOrientations orientation,
-                                                 UnifiedClassOfFits classOfFit, decimal lengthOfEngagement = 0.0m,
+                                                 UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement,
                                                  bool isUnr = false)
     {
         Validate(basicSize, pitch, orientation, classOfFit);
