@@ -6,10 +6,10 @@ using System;
 
 /// <summary>
 /// Provides methods for computing various specifications about a Unified Thread.
+/// This code references ASME B1.1-2019 Ch 8.3 'Formulas for Limits of Size'
 /// </summary>
 public static class UnifiedThreadCalculator
 {
-
     private static void Validate(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                  UnifiedClassOfFits classOfFit)
     {
@@ -109,6 +109,9 @@ public static class UnifiedThreadCalculator
 
     }
 
+    /// <summary>
+    /// Minimum major diameter. For external threads, uses the tolerance range and maximum. For internal threads, equals the basic size.
+    /// </summary>
     public static decimal MajorDiameterMinimum(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                                UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
     {
@@ -126,6 +129,9 @@ public static class UnifiedThreadCalculator
         }
     }
 
+    /// <summary>
+    /// The target size for the thread's Major Diameter. Computed from the tolerance and allowance.
+    /// </summary>
     public static decimal MajorDiameterNominal(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                                UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
     {
@@ -144,6 +150,9 @@ public static class UnifiedThreadCalculator
         return result;
     }
 
+    /// <summary>
+    /// The total tolerance of the major diameter.
+    /// </summary>
     public static decimal MajorDiameterTolerance(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                              UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
     {
@@ -166,6 +175,9 @@ public static class UnifiedThreadCalculator
         return result;
     }
 
+    /// <summary>
+    /// The basic minor diameter which accounts for a crest flat and root flat.
+    /// </summary>
     public static decimal BasicMinorDiameter(decimal basicSize, decimal pitch)
 
     {
@@ -225,6 +237,10 @@ public static class UnifiedThreadCalculator
             return result;
         }
     }
+
+    /// <summary>
+    /// The total tolerance of the minor diameter.
+    /// </summary>
     public static decimal MinorDiameterTolerance(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                                  UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement,
                                                  bool isUnr = false)
@@ -269,6 +285,9 @@ public static class UnifiedThreadCalculator
         return basicSize - (2 * 0.32475953m * pitch);
     }
 
+    /// <summary>
+    /// Minimum limit for the pitch diameter of the thread.
+    /// </summary>
 
     public static decimal PitchDiameterMinimum(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                          UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
@@ -287,6 +306,9 @@ public static class UnifiedThreadCalculator
 
 
     }
+    /// <summary>
+    /// Maximum limit of the pitch diameter for the thread.
+    /// </summary>
     public static decimal PitchDiameterMaximum(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                              UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
     {
@@ -307,6 +329,11 @@ public static class UnifiedThreadCalculator
             return minimumPitchDia + pitchDiameterTol;
         }
     }
+
+    /// <summary>
+    /// Total tolerance of the pitch diameter for a thread, given an optional length of engagement. 
+    /// </summary>
+
     public static decimal PitchDiameterTolerance(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                                  UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
     {
