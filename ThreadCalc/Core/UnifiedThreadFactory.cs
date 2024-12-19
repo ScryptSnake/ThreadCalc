@@ -12,8 +12,13 @@ namespace ThreadCalc.Core;
 // Provides methods for generating a UnifiedThread object from calculations.
 public static class UnifiedThreadFactory
 {
+
+    /// <summary>
+    /// Creates a UTS thread with an internal orientation.
+    /// </summary>
+    /// <returns></returns>
     public static UnifiedThread CreateInternal(decimal basicSize, decimal basicPitch,
-                                                UnifiedClassOfFits classOfFit, decimal lengthOfEngagement = 0.0m)
+                                                UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
     {
         // Establish thread orientation for this method.
         const ThreadOrientations orient = ThreadOrientations.Internal;

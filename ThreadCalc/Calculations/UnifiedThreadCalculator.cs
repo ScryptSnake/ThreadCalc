@@ -48,22 +48,6 @@ public static class UnifiedThreadCalculator
         return false;
     }
 
-    public static decimal MajorDiameterNominal(decimal basicSize, decimal pitch, ThreadOrientations orientation,
-                                               UnifiedClassOfFits classOfFit, decimal lengthOfEngagement = 0.0m)
-    {
-        Validate(basicSize, pitch, orientation, classOfFit);
-
-        var diameterTolerance = MajorDiameterTolerance(basicSize, pitch, orientation, classOfFit, lengthOfEngagement);
-        var allowance = Allowance(basicSize, pitch, classOfFit, lengthOfEngagement);
-
-        var result = 0m;
-
-        if (orientation == ThreadOrientations.External)
-            result = basicSize - allowance - (0.5m * diameterTolerance);
-        else
-            result = basicSize - (0.5m * diameterTolerance);
-        return result;
-    }
 
     /// <summary>
     /// The fundamental height is the height of the thread with an infinitely sharp crest and root.
@@ -91,7 +75,97 @@ public static class UnifiedThreadCalculator
         return 0.5m * pitch;
     }
 
-    
+    public static decimal Allowance(decimal basicSize, decimal pitch, UnifiedClassOfFits classOfFit,
+                                decimal? lengthOfEngagement)
+    {
+        if (!(ValidateBasicSize(basicSize) || ValidatePitch(pitch)))
+            throw new ArgumentException("Invalid sizes provided for calculation.");
+
+        if (classOfFit == UnifiedClassOfFits._3A) return 0;
+
+        var pitchTolerance = PitchDiameterTolerance(basicSize, pitch, ThreadOrientations.External, classOfFit, lengthOfEngagement);
+
+        if (classOfFit == UnifiedClassOfFits._1A || classOfFit == UnifiedClassOfFits._2A)
+            return 0.3m * pitchTolerance;
+        // Allowance is only computed for external threads.
+        throw new Exception("Allowance for internal thread invalid. ClassOfFit must be external.");
+    }
+
+
+    /// <summary>
+    /// Calculates the maximum major diameter for an external thread. Internal threads maximum
+    /// major diameter is established by a GO gage. It is at least greater than the basic size. 
+    /// Per ASME B1.1 ch8.3.2 (a).
+    /// </summary>
+    public static decimal MajorDiameterMaximum_ExternalThread(decimal basicSize, decimal pitch,
+                                               UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
+    {
+        var orientation = ThreadOrientations.External;
+        Validate(basicSize, pitch, orientation, classOfFit);
+        if (classOfFit == UnifiedClassOfFits._3B)
+            return basicSize;
+        else
+            return basicSize - Allowance(basicSize, pitch, classOfFit, lengthOfEngagement);
+
+    }
+
+    public static decimal MajorDiameterMinimum(decimal basicSize, decimal pitch, ThreadOrientations orientation,
+                                               UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
+    {
+        Validate(basicSize, pitch, orientation, classOfFit);
+        if (orientation == ThreadOrientations.External)
+        {
+            var max = MajorDiameterMaximum_ExternalThread(basicSize, pitch, classOfFit, lengthOfEngagement);
+            var tol = MajorDiameterTolerance(basicSize, pitch, orientation, classOfFit, lengthOfEngagement);
+            return max - tol;
+
+        }
+        else
+        {
+            return basicSize;
+        }
+    }
+
+    public static decimal MajorDiameterNominal(decimal basicSize, decimal pitch, ThreadOrientations orientation,
+                                               UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
+    {
+        Validate(basicSize, pitch, orientation, classOfFit);
+
+        var diameterTolerance = MajorDiameterTolerance(basicSize, pitch, orientation, classOfFit, lengthOfEngagement);
+        var allowance = Allowance(basicSize, pitch, classOfFit, lengthOfEngagement);
+
+        var result = 0m;
+
+
+        if (orientation == ThreadOrientations.External)
+            result = basicSize - allowance - (0.5m * diameterTolerance);
+        else
+            result = basicSize - (0.5m * diameterTolerance);
+        return result;
+    }
+
+    public static decimal MajorDiameterTolerance(decimal basicSize, decimal pitch, ThreadOrientations orientation,
+                                             UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
+    {
+        Validate(basicSize, pitch, orientation, classOfFit);
+        decimal result;
+        if (orientation == ThreadOrientations.External)
+        {
+            result = (decimal)Math.Pow(Math.Sqrt((double)pitch), 1.0 / 3.0);
+            if (classOfFit == UnifiedClassOfFits._1A)
+                result = 0.09m * result;
+            else
+                result = 0.06m * result;
+        }
+        else
+        {
+            result = (0.14433757m * pitch) +
+                PitchDiameterTolerance(basicSize, pitch, orientation, classOfFit, lengthOfEngagement);
+        }
+
+        return result;
+    }
+
     public static decimal BasicMinorDiameter(decimal basicSize, decimal pitch)
 
     {
@@ -101,15 +175,6 @@ public static class UnifiedThreadCalculator
             throw new ArgumentException("Invalid size provided.");
 
         return basicSize - (2*Height(pitch));
-    }
-
-    public static decimal BasicPitchDiameter(decimal basicSize, decimal pitch)
-    {
-        if (ValidatePitch(pitch) == false)
-            throw new ArgumentException("Invalid pitch provided.");
-        if (ValidateBasicSize(basicSize) == false)
-            throw new ArgumentException("Invalid size provided.");
-        return basicSize - (2* 0.32475953m * pitch);
     }
 
 
@@ -132,11 +197,6 @@ public static class UnifiedThreadCalculator
             return basicSize - (1.08253175m * pitch);
         }
     }
-
-
-
-
-
 
     /// <summary>
     /// Computes the maximum minor diameter of a thread. References ASME B1.1 ch 8.3.1 + ch 8.3.2 - section e.
@@ -165,8 +225,6 @@ public static class UnifiedThreadCalculator
             return result;
         }
     }
-
-
     public static decimal MinorDiameterTolerance(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                                  UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement,
                                                  bool isUnr = false)
@@ -202,6 +260,15 @@ public static class UnifiedThreadCalculator
         }
     }
 
+    public static decimal BasicPitchDiameter(decimal basicSize, decimal pitch)
+    {
+        if (ValidatePitch(pitch) == false)
+            throw new ArgumentException("Invalid pitch provided.");
+        if (ValidateBasicSize(basicSize) == false)
+            throw new ArgumentException("Invalid size provided.");
+        return basicSize - (2 * 0.32475953m * pitch);
+    }
+
 
     public static decimal PitchDiameterMinimum(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                          UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
@@ -220,8 +287,6 @@ public static class UnifiedThreadCalculator
 
 
     }
-
-
     public static decimal PitchDiameterMaximum(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                              UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
     {
@@ -242,10 +307,6 @@ public static class UnifiedThreadCalculator
             return minimumPitchDia + pitchDiameterTol;
         }
     }
-
-
-
-
     public static decimal PitchDiameterTolerance(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                                  UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
     {
@@ -282,41 +343,4 @@ public static class UnifiedThreadCalculator
         return result;
     }
 
-    public static decimal MajorDiameterTolerance(decimal basicSize, decimal pitch, ThreadOrientations orientation,
-                                                 UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
-    {
-        Validate(basicSize, pitch, orientation, classOfFit);
-        decimal result;
-        if (orientation == ThreadOrientations.External)
-        {
-            result = (decimal)Math.Pow(Math.Sqrt((double)pitch), 1.0 / 3.0);
-            if (classOfFit == UnifiedClassOfFits._1A)
-                result = 0.09m * result;
-            else
-                result = 0.06m * result;
-        }
-        else
-        {
-            result = (0.14433757m * pitch) + 
-                PitchDiameterTolerance(basicSize, pitch, orientation, classOfFit, lengthOfEngagement);
-        }
-
-        return result;
-    }
-
-    public static decimal Allowance(decimal basicSize, decimal pitch, UnifiedClassOfFits classOfFit,
-                                    decimal? lengthOfEngagement)
-    {
-        if (!(ValidateBasicSize(basicSize) || ValidatePitch(pitch)))
-            throw new ArgumentException("Invalid sizes provided for calculation.");
-
-        if (classOfFit == UnifiedClassOfFits._3A) return 0;
-
-        var pitchTolerance = PitchDiameterTolerance(basicSize, pitch, ThreadOrientations.External, classOfFit, lengthOfEngagement);
-
-        if (classOfFit == UnifiedClassOfFits._1A || classOfFit == UnifiedClassOfFits._2A)
-            return 0.3m * pitchTolerance;
-        // Allowance is only computed for external threads.
-        throw new Exception("Allowance for internal thread invalid. ClassOfFit must be external.");
-    }
 }
