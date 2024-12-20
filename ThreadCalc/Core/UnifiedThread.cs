@@ -21,9 +21,8 @@ public record UnifiedThread : IThread
     public required Specification PitchDiameter { get; init; }
     public required Specification RootWidth { get; init; }
     public required Specification CrestWidth { get; init; }
-    public required Specification MeasurementOverWires { get; init; }
-    public required Specification Pitch { get; init; }
+    public required SimpleSpecification Pitch { get; init; }
     public required bool isUnr { get; init; }
-    public required SimpleSpecification LengthOfEngagement { get; init; }    
+    public SimpleSpecification? LengthOfEngagement { get; init; }   // Optional specification. 
 
 }

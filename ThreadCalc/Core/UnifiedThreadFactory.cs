@@ -10,7 +10,9 @@ using ThreadCalc.Types;
 
 namespace ThreadCalc.Core;
 
-// Provides methods for generating a UnifiedThread object from calculations.
+/// <summary>
+/// Provides methods for generating a UnifiedThread object with data derived from ASME B1.1 calculations. 
+/// </summary>
 public static class UnifiedThreadFactory
 {
     /// <summary>
@@ -19,30 +21,28 @@ public static class UnifiedThreadFactory
     /// <returns></returns>
     /// 
     public static UnifiedThread CreateInternal(decimal basicSize, decimal basicPitch,
-                                                UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
+                                                UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement, bool isUnr)
     {
-        // Establish thread orientation for this method.
-        const ThreadOrientations orient = ThreadOrientations.Internal;
+        // Declare the orientation for this method.
+        var orient = ThreadOrientations.Internal;
 
-        // Perform calculations needed, load into memory.
-
-        // Allowance:
-        var allowance = 0; // Not a feature of Internal threads.
+        // Perform calculations needed, create specifications from calculations
+        // Allowance - not a feature of internal threads:
+        var allowance = new SimpleSpecification("Allowance", "ES", 0);
         // Major Diameter:
         var majorDiameterMinimum = UnifiedThreadCalculator.MajorDiameterMinimum(basicSize, basicPitch, orient, classOfFit, lengthOfEngagement);
-        var majorDiameterMaximum = 0; // Note:  established by a GO gage in practice. See ASME 8.3.2 (a).
+        var majorDiameterMaximum = 0; // Note: for internal, established by a GO gage in practice. See ASME 8.3.2 (a).
+        var majorDiameter = new Specification("Major Diameter", "D", majorDiameterMaximum, majorDiameterMinimum);
         // Minor Diameter:
-        var minorDiameterMinimum = UnifiedThreadCalculator.MinorDiameterMinimum(basicSize,decimal)
+        var minorDiameterMinimum = UnifiedThreadCalculator.MinorDiameterMinimum(basicSize, basicPitch, orient, classOfFit, lengthOfEngagement);
+        var minorDiameterMaximum = UnifiedThreadCalculator.MinorDiameterMaximum(basicSize, basicPitch, orient, classOfFit, lengthOfEngagement,isUnr);
+        var minorDiameter = new Specification("Minor Diameter","D1",minorDiameterMaximum, minorDiameterMinimum);
+        // Pitch Diameter:
+        var pitchDiameterMinimum = UnifiedThreadCalculator.PitchDiameterMinimum(basicSize, basicPitch, orient, classOfFit, lengthOfEngagement);
+        var pitchDiameterMaximum= UnifiedThreadCalculator.PitchDiameterMaximum(basicSize, basicPitch, orient, classOfFit, lengthOfEngagement);
+        var pitchDiameter = new Specification("Pitch Diameter", "D2", pitchDiameterMaximum, pitchDiameterMinimum);
 
 
-        var arg = new CalcArgument(basicSize,basicPitch,blah,blah,blah)
-
-        var majorDiameterMinimum = UnifiedThreadCalculator.MajorDiameterMinimum(arg);
-        var majorDiameterMaximum = UnifiedThreadCalculator.MajorDiameterMaximum(arg);
-        ...
-        var majorDiameterMinimum = UnifiedThreadCalculator.MajorDiameterMinimum(arg); ;
-
-        var majorDiameterMinimum = UnifiedThreadCalculator.MajorDiameterMinimum(basicSize, basicPitch, orient, classOfFit, lengthOfEngagement);
 
         // Build the thread.
         var utsThread = new UnifiedThread

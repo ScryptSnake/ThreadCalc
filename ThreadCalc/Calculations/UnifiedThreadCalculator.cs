@@ -21,18 +21,27 @@ public static class UnifiedThreadCalculator
             throw new ArgumentException("Invalid orientation-class of fit combination.");
     }
 
+    /// <summary>
+    /// Tests the size given is greater than zero. 
+    /// </summary>
     public static bool ValidateBasicSize(decimal basicSize)
     {
         if (basicSize <= 0) return false;
         return true;
     }
 
+    /// <summary>
+    /// Tests the pitch provided is greater than zero.
+    /// </summary>
     public static bool ValidatePitch(decimal pitch)
     {
         if (pitch <= 0) return false;
         return true;
     }
 
+    /// <summary>
+    /// Tests whether the class of fit provided is valid for the provided orientation. 
+    /// </summary>
     public static bool ValidateClassOfFit(ThreadOrientations orientation, UnifiedClassOfFits classOfFit)
     {
         // Throws an exception if an invalid classOfFit / Orientation combination are provided.
@@ -48,7 +57,6 @@ public static class UnifiedThreadCalculator
         return false;
     }
 
-
     /// <summary>
     /// The fundamental height is the height of the thread with an infinitely sharp crest and root.
     /// </summary>
@@ -61,6 +69,7 @@ public static class UnifiedThreadCalculator
 
     /// <summary>
     /// Computes the height (Basic height) of the thread with a flat root and crest.
+    /// Warning:  Does not include UNR external threads.
     /// </summary>
     public static decimal Height(decimal pitch)
     {
@@ -68,6 +77,21 @@ public static class UnifiedThreadCalculator
             throw new ArgumentException("Invalid pitch provided.");
         return 0.54126588m * pitch;
     }
+
+    /// <summary>
+    /// Computes the height (Hs) of an external UNR thread.
+    /// </summary>
+    public static decimal HeightUnrExternal(decimal pitch)
+    {
+        if (ValidatePitch(pitch) == false)
+            throw new ArgumentException("Invalid pitch provided.");
+        return 0.59539247m * pitch;
+    }
+
+
+    /// <summary>
+    /// Computes the width of the thread at the pitch line. 
+    /// </summary>
     public static decimal WidthAtPitchLine(decimal pitch)
     {
         if (ValidatePitch(pitch) == false)
@@ -75,6 +99,9 @@ public static class UnifiedThreadCalculator
         return 0.5m * pitch;
     }
 
+    /// <summary>
+    /// Allowance provides clearance for two threads to properly mate. It is applied to external thread features only.
+    /// </summary>
     public static decimal Allowance(decimal basicSize, decimal pitch, UnifiedClassOfFits classOfFit,
                                 decimal? lengthOfEngagement)
     {
@@ -152,6 +179,7 @@ public static class UnifiedThreadCalculator
 
     /// <summary>
     /// The total tolerance of the major diameter.
+    /// Note: See ASME B1.1 Ch 5.4 (pg 79)
     /// </summary>
     public static decimal MajorDiameterTolerance(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                              UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
@@ -178,7 +206,7 @@ public static class UnifiedThreadCalculator
     /// <summary>
     /// The basic minor diameter which accounts for a crest flat and root flat.
     /// </summary>
-    public static decimal BasicMinorDiameter(decimal basicSize, decimal pitch)
+    public static decimal MinorDiameterBasic(decimal basicSize, decimal pitch)
 
     {
         if (ValidatePitch(pitch) == false)
@@ -192,7 +220,7 @@ public static class UnifiedThreadCalculator
 
     /// <summary>
     /// Computes the minimum minor diameter of a thread. References ASME B1.1 ch 8.3.1 + ch 8.3.2 - section e.
-    /// Does not support UNJ threads. 
+    /// Does not support UNJ threads. Note: See ASME B1.1 Ch 5.4 (pg 79)
     /// </summary>
     public static decimal MinorDiameterMinimum(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                         UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
@@ -223,9 +251,9 @@ public static class UnifiedThreadCalculator
         if(orientation == ThreadOrientations.External)
         {
             if (classOfFit == UnifiedClassOfFits._3A)
-                return BasicMinorDiameter(basicSize, pitch);
+                return MinorDiameterBasic(basicSize, pitch);
             else
-                result = BasicMinorDiameter(basicSize, pitch) - Allowance(basicSize, pitch, classOfFit, 0);
+                result = MinorDiameterBasic(basicSize, pitch) - Allowance(basicSize, pitch, classOfFit, 0);
                 return result;
         }
         else
@@ -240,6 +268,7 @@ public static class UnifiedThreadCalculator
 
     /// <summary>
     /// The total tolerance of the minor diameter.
+    /// Note: See ASME B1.1 Ch 5.4 (pg 79)
     /// </summary>
     public static decimal MinorDiameterTolerance(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                                  UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement,
@@ -276,7 +305,7 @@ public static class UnifiedThreadCalculator
         }
     }
 
-    public static decimal BasicPitchDiameter(decimal basicSize, decimal pitch)
+    public static decimal PitchDiameterBasic(decimal basicSize, decimal pitch)
     {
         if (ValidatePitch(pitch) == false)
             throw new ArgumentException("Invalid pitch provided.");
@@ -301,7 +330,7 @@ public static class UnifiedThreadCalculator
         }
         else
         {
-            return BasicPitchDiameter(basicSize, pitch);
+            return PitchDiameterBasic(basicSize, pitch);
         }
 
 
@@ -317,10 +346,10 @@ public static class UnifiedThreadCalculator
         {
             if (classOfFit == UnifiedClassOfFits._3A)
                 // Equals basic PD of internal thread (D2bsc) according to std. basic PD is irrespective of orientation anyway?) 
-                return BasicPitchDiameter(basicSize, pitch);
+                return PitchDiameterBasic(basicSize, pitch);
             else
                 // 2A or 1A
-                return BasicPitchDiameter(basicSize, pitch) - Allowance(basicSize,pitch,classOfFit, lengthOfEngagement);
+                return PitchDiameterBasic(basicSize, pitch) - Allowance(basicSize,pitch,classOfFit, lengthOfEngagement);
         }
         else
         {
@@ -333,7 +362,6 @@ public static class UnifiedThreadCalculator
     /// <summary>
     /// Total tolerance of the pitch diameter for a thread, given an optional length of engagement. 
     /// </summary>
-
     public static decimal PitchDiameterTolerance(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                                  UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement)
     {
@@ -348,7 +376,7 @@ public static class UnifiedThreadCalculator
             else
                 le = basicSize;
         }
-        // All tolerance calculations are based upon 2A class of fit.
+        // All tolerance calculations are based upon 2A class of fit - See switch.
         var pitchDiaTol2A = (0.0015m * (decimal)Math.Sqrt((double)le)) +
                      (0.015m * (decimal)Math.Pow((double)pitch, 2.0 / 3.0)) +
                      (0.0015m * (decimal)Math.Pow((double)basicSize, 1.0 / 3.0));
@@ -358,11 +386,11 @@ public static class UnifiedThreadCalculator
         {
             // External
             UnifiedClassOfFits._2A => pitchDiaTol2A,
-            UnifiedClassOfFits._1A => 1.5m * pitchDiaTol2A,
+            UnifiedClassOfFits._1A => 1.50m * pitchDiaTol2A,
             UnifiedClassOfFits._3A => 0.75m * pitchDiaTol2A,
             // Internal
             UnifiedClassOfFits._1B => 1.95m * pitchDiaTol2A,
-            UnifiedClassOfFits._2B => 1.3m * pitchDiaTol2A,
+            UnifiedClassOfFits._2B => 1.30m * pitchDiaTol2A,
             UnifiedClassOfFits._3B => 0.975m * pitchDiaTol2A,
             _ => throw new ArgumentException("Unknown class of fit.")
         };
@@ -370,4 +398,49 @@ public static class UnifiedThreadCalculator
         return result;
     }
 
+
+    /// <summary>
+    /// Computes the crest width for a given pitch and orientation, also dependent on a UNR and/or truncation.
+    /// Reference:  ASME B1.10291 ch10. pg 142.
+    /// </summary>
+    public static decimal CrestWidth(decimal pitch, ThreadOrientations orientation, bool isUnr, bool isTruncated)
+    {
+        if (orientation == ThreadOrientations.External)
+        {
+            if (isTruncated)
+                if (isUnr)
+                    return 0.16237976m * pitch;
+                else
+                    return 1.0825318m * pitch;
+            else
+                return 0.125m * pitch;
+        }
+        else
+        {
+            if (isTruncated)
+                return 0.21650635m * pitch;
+            else
+                return 0.250m * pitch;
+        }
+    }
+
+    /// <summary>
+    /// Computes the root width for a given pitch and orientation, also dependent on a UNR and/or truncation.
+    /// Reference:  ASME B1.10291 ch10. pg 142.
+    /// </summary>
+    public static decimal RootWidth(decimal pitch, ThreadOrientations orientation, bool isTruncated)
+    {
+        if (orientation == ThreadOrientations.External)
+        {
+            return 0.250m * pitch;
+        }
+        else
+        {
+            if (isTruncated)
+                return 1.0825318m * pitch;
+            else
+                return 0.125m * pitch;
+        }
+
+    }
 }

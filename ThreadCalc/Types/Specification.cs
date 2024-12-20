@@ -10,10 +10,16 @@ public record Specification(
     string Name,
     string Notation,
     decimal UpperLimit,
-    decimal LowerLimit,
-    decimal Nominal,
-    decimal Tolerance
+    decimal LowerLimit
     )
 {
+    public decimal GetNominal()
+    {
+        return (GetTolerance() / 2) + LowerLimit;
+    }
+    public decimal GetTolerance()
+    {
+        return UpperLimit - LowerLimit;
+    }
 }
 
