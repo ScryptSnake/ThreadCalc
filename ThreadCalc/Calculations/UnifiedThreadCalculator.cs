@@ -60,7 +60,7 @@ public static class UnifiedThreadCalculator
     /// <summary>
     /// The fundamental height is the height of the thread with an infinitely sharp crest and root.
     /// </summary>
-    public static decimal FundamentalHeight(decimal pitch)
+    public static decimal HeightFundamental(decimal pitch)
     {
         if (ValidatePitch(pitch) == false) 
             throw new ArgumentException("Invalid pitch provided.");
@@ -243,6 +243,7 @@ public static class UnifiedThreadCalculator
     /// Does not support UNJ threads.
     /// Note: this method does not adhere to ASME B1.1 Ch 8.3.2 section f-1
     /// </summary>
+    /// <param name="isUnr"> Applicable only to external threads. Ignored if orientation is internal.</param>
     public static decimal MinorDiameterMaximum(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                         UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement, bool isUnr)
     {
@@ -270,6 +271,7 @@ public static class UnifiedThreadCalculator
     /// The total tolerance of the minor diameter.
     /// Note: See ASME B1.1 Ch 5.4 (pg 79)
     /// </summary>
+    /// <param name="isUnr"> Applicable only to external threads. Ignored if orientation is internal.</param>
     public static decimal MinorDiameterTolerance(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                                  UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement,
                                                  bool isUnr = false)

@@ -21,8 +21,7 @@ public static class UnifiedThreadFactory
     /// <returns></returns>
     /// 
     public static UnifiedThread CreateInternal(decimal basicSize, decimal basicPitch,
-                                                UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement, 
-                                                 bool isUnr, bool isTrun)
+                                                UnifiedClassOfFits classOfFit, decimal? lengthOfEngagement, isTruncated
     {
         // Declare the orientation for this method.
         var orient = ThreadOrientations.Internal;
@@ -43,7 +42,7 @@ public static class UnifiedThreadFactory
         var pitchDiameterMaximum= UnifiedThreadCalculator.PitchDiameterMaximum(basicSize, basicPitch, orient, classOfFit, lengthOfEngagement);
         var pitchDiameter = new Specification("Pitch Diameter", "D2", pitchDiameterMaximum, pitchDiameterMinimum);
         // Root Width:
-        var rootWidth = UnifiedThreadCalculator.RootWidth(pitch,orient,)
+        var rootWidth = UnifiedThreadCalculator.RootWidthInternal(pitch, false);
 
 
         // Build the thread.
