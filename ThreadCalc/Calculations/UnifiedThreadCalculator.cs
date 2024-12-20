@@ -400,47 +400,57 @@ public static class UnifiedThreadCalculator
 
 
     /// <summary>
-    /// Computes the crest width for a given pitch and orientation, also dependent on a UNR and/or truncation.
+    /// Computes the nominal crest width of an external thread.
     /// Reference:  ASME B1.10291 ch10. pg 142.
     /// </summary>
-    public static decimal CrestWidth(decimal pitch, ThreadOrientations orientation, bool isUnr, bool isTruncated)
+    public static decimal CrestWidthExternal(decimal pitch, bool isUnr, bool isTruncated)
     {
-        if (orientation == ThreadOrientations.External)
-        {
-            if (isTruncated)
-                if (isUnr)
-                    return 0.16237976m * pitch;
-                else
-                    return 1.0825318m * pitch;
+        if (ValidatePitch(pitch) == false)
+            throw new ArgumentException("Invalid pitch provided.");
+        if (isTruncated)
+            if (isUnr)
+                return 0.16237976m * pitch;
             else
-                return 0.125m * pitch;
-        }
+                return 1.0825318m * pitch;
         else
-        {
-            if (isTruncated)
-                return 0.21650635m * pitch;
-            else
-                return 0.250m * pitch;
-        }
+            return 0.125m * pitch;
     }
 
     /// <summary>
-    /// Computes the root width for a given pitch and orientation, also dependent on a UNR and/or truncation.
+    /// Computes the nominal crest width of an internal thread.
     /// Reference:  ASME B1.10291 ch10. pg 142.
     /// </summary>
-    public static decimal RootWidth(decimal pitch, ThreadOrientations orientation, bool isTruncated)
+    public static decimal CrestWidthInternal(decimal pitch, bool isTruncated)
     {
-        if (orientation == ThreadOrientations.External)
-        {
-            return 0.250m * pitch;
-        }
+        if (isTruncated)
+            return 0.21650635m * pitch;
         else
-        {
-            if (isTruncated)
-                return 1.0825318m * pitch;
-            else
-                return 0.125m * pitch;
-        }
+            return 0.250m * pitch;
+    }
 
+    /// <summary>
+    /// Computes the nominal root width on an external thread. 
+    /// Reference:  ASME B1.10291 ch10. pg 142.
+    /// </summary>
+    public static decimal RootWidthExternal(decimal pitch)
+    {
+        if (ValidatePitch(pitch) == false)
+            throw new ArgumentException("Invalid pitch provided.");
+        return 0.250m * pitch;
+
+    }
+
+    /// <summary>
+    /// Computes the nominal root width on an internal thread.
+    /// Reference:  ASME B1.10291 ch10. pg 142.
+    /// </summary>
+    public static decimal RootWidthInternal(decimal pitch, bool isTruncated)
+    {
+        if (ValidatePitch(pitch) == false)
+            throw new ArgumentException("Invalid pitch provided.");
+        if (isTruncated)
+            return 1.0825318m * pitch;
+        else
+            return 0.125m * pitch;
     }
 }
