@@ -13,34 +13,28 @@ public static class UnifiedThreadCalculator
     private static void Validate(decimal basicSize, decimal pitch, ThreadOrientations orientation,
                                  UnifiedClassOfFits classOfFit)
     {
-        if (ValidateBasicSize(basicSize) == false)
-            throw new ArgumentException("Size provided for calculation is invalid.");
-        if (ValidatePitch(pitch) == false)
-            throw new ArgumentException("Pitch provided for calculation is invalid.");
+        ValidateBasicSize(basicSize);
+        ValidatePitch(pitch);
+
         if (ValidateClassOfFit(orientation, classOfFit) == false)
             throw new ArgumentException("Invalid orientation-class of fit combination.");
     }
 
-    /// <summary>
-    /// Tests the size given is greater than zero. 
-    /// </summary>
-    public static bool ValidateBasicSize(decimal basicSize)
+    private static void ValidateBasicSize(decimal basicSize)
     {
-        if (basicSize <= 0) return false;
-        return true;
+        if (basicSize <= 0) 
+            throw new ArgumentException("Invalid size provided.");
     }
 
-    /// <summary>
-    /// Tests the pitch provided is greater than zero.
-    /// </summary>
-    public static bool ValidatePitch(decimal pitch)
+    private static void ValidatePitch(decimal pitch)
     {
-        if (pitch <= 0) return false;
-        return true;
+        if (pitch <= 0)
+            throw new ArgumentException("Invalid pitch provided.");
     }
 
+
     /// <summary>
-    /// Tests whether the class of fit provided is valid for the provided orientation. 
+    /// Tests whether a provided Class of Fit is correct for a given thread orientation. 
     /// </summary>
     public static bool ValidateClassOfFit(ThreadOrientations orientation, UnifiedClassOfFits classOfFit)
     {
@@ -62,8 +56,7 @@ public static class UnifiedThreadCalculator
     /// </summary>
     public static decimal HeightFundamental(decimal pitch)
     {
-        if (ValidatePitch(pitch) == false) 
-            throw new ArgumentException("Invalid pitch provided.");
+        ValidatePitch(pitch);
         return 0.8660254m * pitch;
     }
 
@@ -73,8 +66,7 @@ public static class UnifiedThreadCalculator
     /// </summary>
     public static decimal Height(decimal pitch)
     {
-        if (ValidatePitch(pitch) == false)
-            throw new ArgumentException("Invalid pitch provided.");
+        ValidatePitch(pitch);
         return 0.54126588m * pitch;
     }
 
@@ -83,8 +75,7 @@ public static class UnifiedThreadCalculator
     /// </summary>
     public static decimal HeightUnrExternal(decimal pitch)
     {
-        if (ValidatePitch(pitch) == false)
-            throw new ArgumentException("Invalid pitch provided.");
+        ValidatePitch(pitch);
         return 0.59539247m * pitch;
     }
 
@@ -94,8 +85,7 @@ public static class UnifiedThreadCalculator
     /// </summary>
     public static decimal WidthAtPitchLine(decimal pitch)
     {
-        if (ValidatePitch(pitch) == false)
-            throw new ArgumentException("Invalid pitch provided.");
+        ValidatePitch(pitch);
         return 0.5m * pitch;
     }
 
@@ -105,8 +95,8 @@ public static class UnifiedThreadCalculator
     public static decimal Allowance(decimal basicSize, decimal pitch, UnifiedClassOfFits classOfFit,
                                 decimal? lengthOfEngagement)
     {
-        if (!(ValidateBasicSize(basicSize) || ValidatePitch(pitch)))
-            throw new ArgumentException("Invalid sizes provided for calculation.");
+        ValidateBasicSize(basicSize);
+        ValidatePitch(pitch);
 
         if (classOfFit == UnifiedClassOfFits._3A) return 0;
 
@@ -117,7 +107,6 @@ public static class UnifiedThreadCalculator
         // Allowance is only computed for external threads.
         throw new Exception("Allowance for internal thread invalid. ClassOfFit must be external.");
     }
-
 
     /// <summary>
     /// Calculates the maximum major diameter for an external thread. Internal threads maximum
@@ -209,11 +198,8 @@ public static class UnifiedThreadCalculator
     public static decimal MinorDiameterBasic(decimal basicSize, decimal pitch)
 
     {
-        if (ValidatePitch(pitch) == false)
-            throw new ArgumentException("Invalid pitch provided.");
-        if (ValidateBasicSize(basicSize) == false)
-            throw new ArgumentException("Invalid size provided.");
-
+        ValidatePitch(pitch);
+        ValidateBasicSize(basicSize);
         return basicSize - (2*Height(pitch));
     }
 
@@ -309,10 +295,8 @@ public static class UnifiedThreadCalculator
 
     public static decimal PitchDiameterBasic(decimal basicSize, decimal pitch)
     {
-        if (ValidatePitch(pitch) == false)
-            throw new ArgumentException("Invalid pitch provided.");
-        if (ValidateBasicSize(basicSize) == false)
-            throw new ArgumentException("Invalid size provided.");
+        ValidatePitch(pitch);
+        ValidateBasicSize(basicSize);
         return basicSize - (2 * 0.32475953m * pitch);
     }
 
@@ -407,13 +391,12 @@ public static class UnifiedThreadCalculator
     /// </summary>
     public static decimal CrestWidthExternal(decimal pitch, bool isUnr, bool isTruncated)
     {
-        if (ValidatePitch(pitch) == false)
-            throw new ArgumentException("Invalid pitch provided.");
+        ValidatePitch(pitch);
         if (isTruncated)
             if (isUnr)
                 return 0.16237976m * pitch;
             else
-                return 1.0825318m * pitch;
+                return 0.10825318m * pitch;
         else
             return 0.125m * pitch;
     }
@@ -424,6 +407,7 @@ public static class UnifiedThreadCalculator
     /// </summary>
     public static decimal CrestWidthInternal(decimal pitch, bool isTruncated)
     {
+        ValidatePitch(pitch);
         if (isTruncated)
             return 0.21650635m * pitch;
         else
@@ -436,8 +420,7 @@ public static class UnifiedThreadCalculator
     /// </summary>
     public static decimal RootWidthExternal(decimal pitch)
     {
-        if (ValidatePitch(pitch) == false)
-            throw new ArgumentException("Invalid pitch provided.");
+        ValidatePitch(pitch);
         return 0.250m * pitch;
 
     }
@@ -448,11 +431,21 @@ public static class UnifiedThreadCalculator
     /// </summary>
     public static decimal RootWidthInternal(decimal pitch, bool isTruncated)
     {
-        if (ValidatePitch(pitch) == false)
-            throw new ArgumentException("Invalid pitch provided.");
+        ValidatePitch(pitch);
         if (isTruncated)
-            return 1.0825318m * pitch;
+            return 0.10825318m * pitch;
         else
             return 0.125m * pitch;
+    }
+
+    /// <summary>
+    /// Computes the root radius maximum (full radius) for an external thread.
+    /// Note: Applies to both UN and UNR. 
+    /// Reference:  ASME B1.10291 Table 5 - pg102
+    /// </summary>
+    public static decimal RootFullRadiusExternal(decimal pitch)
+    {
+        ValidatePitch(pitch);
+        return 0.14433757m * pitch;
     }
 }
