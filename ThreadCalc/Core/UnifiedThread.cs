@@ -12,7 +12,7 @@ public record UnifiedThread : IThread
     public required decimal BasicSize { get; init; }
     public required decimal BasicPitch {get;init; }
     public required ThreadOrientations Orientation { get; init; }
-    public required bool IsCustom { get; init; }
+    public required string Designation { get; init; }
     public required decimal ThreadsPerInch { get; init; }
     public required UnifiedClassOfFits ClassOfFit { get; init; }
     public required SimpleSpecification Allowance { get; init; }

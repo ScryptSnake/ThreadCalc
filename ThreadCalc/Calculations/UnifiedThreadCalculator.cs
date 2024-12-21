@@ -51,6 +51,17 @@ public static class UnifiedThreadCalculator
         return false;
     }
 
+
+    public static Designation(decimal basicSize, decimal pitch, UnifiedClassOfFits classOfFit, bool leftHand = false)
+    {
+
+
+
+
+    }
+
+
+
     /// <summary>
     /// The fundamental height is the height of the thread with an infinitely sharp crest and root.
     /// </summary>

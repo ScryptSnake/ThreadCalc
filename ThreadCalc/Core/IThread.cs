@@ -17,7 +17,6 @@ namespace ThreadCalc.Core
         decimal BasicSize { get; }
         decimal BasicPitch { get; }
         ThreadOrientations Orientation { get; }
-        bool IsCustom { get; }
-
+        string Designation { get; }
     }
 }
