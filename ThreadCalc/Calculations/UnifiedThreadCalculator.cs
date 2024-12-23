@@ -1,5 +1,5 @@
 ﻿using ThreadCalc.Types;
-
+using ThreadCalc.Utilities;
 namespace ThreadCalc.Calculations;
 
 using System;
@@ -52,12 +52,28 @@ public static class UnifiedThreadCalculator
     }
 
 
-    public static Designation(decimal basicSize, decimal pitch, UnifiedClassOfFits classOfFit, bool leftHand = false)
+    /// <summary>
+    /// Produces a designation string for the specified thread. Ex:  '1/2 - 13 UNC 2A'
+    /// If the decimal cannot be resolved to a fraction, the decimal value is used. 
+    /// </summary>
+    public static string Designation(decimal basicSize, decimal pitch, UnifiedClassOfFits classOfFit, 
+                                UnifiedThreadSeries series, bool leftHand = false)
     {
+        var size = FractionConverter.Dec2Frac(basicSize);
+        var tpi = (1 / pitch).ToString();
 
+        var classOfFitName = Enum.GetName(typeof(UnifiedClassOfFits), classOfFit) ?? "??";
+        var fit = classOfFitName.Remove(0, 1);
 
+        var type = Enum.GetName(typeof(UnifiedThreadSeries), series) ?? "N/A";
+        type = type.ToUpper();
 
+        var lh = string.Empty;
 
+        if (leftHand) lh = "LH";
+
+        var output =  $"{size} - {tpi} {series} {fit} {lh}";
+        return output.Trim();
     }
 
 
