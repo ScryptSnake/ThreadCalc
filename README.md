@@ -1,6 +1,6 @@
 # :wrench: ThreadCalc
 *A .NET project for solving goemetric dimensions, tolerances, and specifications for mechanical threads.*
-> Note: This project is in design stages. 
+> Note: This project is in early development stages and is incomplete. 
 
 ---------
 ## Overview
@@ -17,7 +17,7 @@ The following threads are supported by ThreadCalc:
 
 - Unified Thread Standard (UTS) *Does not support UNJ design profile*
 - Metric Threads (M Profile)
-- Buttress Thread (ANSI 45/7°)
+- Buttress Thread (ANSI 45/7Â°)
 - ... Others in future.
 
 ## Relevant Standards
